@@ -4,10 +4,11 @@ import pandas as pd
 import json
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_widths
+import numpy as np
 
-st.set_page_config(page_title='IR Peak Annotator', layout='wide')
-st.title('🔬 IR Spectrum Annotator with Peak Shape')
-st.markdown('Upload a spectrum CSV file with `x` and `y` columns to analyze and classify peaks (broad or sharp).')
+st.set_page_config(page_title='IR Peak Annotator (Robust)', layout='wide')
+st.title('🔬 IR Spectrum Annotator – Enhanced Peak Detection')
+st.markdown('Upload a spectrum CSV file with `x` and `y` columns. Now with robust automatic peak detection logic.')
 
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 uploaded_rules = st.file_uploader("Upload Custom IR Rules (optional)", type=["json"])
@@ -29,23 +30,23 @@ default_rules = {
     "P=O (phosphoryl stretch)": [1200, 1280]
 }
 
-def annotate_peaks(x, y, rules, height_ratio=0.05, distance=10):
-    from numpy import min
+def annotate_peaks(x, y, rules, height_ratio=0.01, distance=5):
     baseline = min(y)
     y_corrected = y - baseline
+    y_norm = y_corrected / max(y_corrected)
 
     peaks, props = find_peaks(
-        y_corrected,
-        height=height_ratio * max(y_corrected),
+        y_norm,
+        height=height_ratio,
         distance=distance,
-        prominence=0.03 * max(y_corrected),
-        width=3
+        prominence=0.01,
+        width=1.0
     )
-    results_half = peak_widths(y_corrected, peaks, rel_height=0.5)
+    results_half = peak_widths(y_norm, peaks, rel_height=0.5)
     widths = results_half[0]
 
     peak_x = x[peaks]
-    peak_y = y[peaks]
+    peak_y = y[peaks]  # use original height not normalized
 
     annotations = []
     for px, py, width in zip(peak_x, peak_y, widths):
