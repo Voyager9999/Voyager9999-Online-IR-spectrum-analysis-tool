@@ -3,11 +3,11 @@ import streamlit as st
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, peak_widths
 
-st.set_page_config(page_title='IR Spectrum Annotator', layout='wide')
-st.title('🔬 IR Spectrum Annotator (Improved Version)')
-st.markdown('Upload your spectrum CSV file (with columns `x` and `y`) to analyze and annotate peaks with better accuracy.')
+st.set_page_config(page_title='IR Peak Annotator', layout='wide')
+st.title('🔬 IR Spectrum Annotator with Peak Shape')
+st.markdown('Upload a spectrum CSV file with `x` and `y` columns to analyze and classify peaks (broad or sharp).')
 
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 uploaded_rules = st.file_uploader("Upload Custom IR Rules (optional)", type=["json"])
@@ -30,17 +30,34 @@ default_rules = {
 }
 
 def annotate_peaks(x, y, rules, height_ratio=0.05, distance=10):
-    peaks, props = find_peaks(y, height=height_ratio * max(y), distance=distance, prominence=0.01, width=2)
+    from numpy import min
+    baseline = min(y)
+    y_corrected = y - baseline
+
+    peaks, props = find_peaks(
+        y_corrected,
+        height=height_ratio * max(y_corrected),
+        distance=distance,
+        prominence=0.03 * max(y_corrected),
+        width=3
+    )
+    results_half = peak_widths(y_corrected, peaks, rel_height=0.5)
+    widths = results_half[0]
+
     peak_x = x[peaks]
     peak_y = y[peaks]
+
     annotations = []
-    for px, py in zip(peak_x, peak_y):
+    for px, py, width in zip(peak_x, peak_y, widths):
         matches = [name for name, (low, high) in rules.items() if low <= px <= high]
         if matches:
+            peak_type = 'broad' if width >= 25 else 'sharp'
             annotations.append({
-                "peak_cm-1": px,
-                "intensity": py,
-                "annotations": "; ".join(matches)
+                "peak_cm-1": round(px, 2),
+                "intensity": round(py, 3),
+                "width": round(width, 2),
+                "type": peak_type,
+                "annotations": '; '.join(matches)
             })
     return pd.DataFrame(annotations)
 
@@ -63,13 +80,14 @@ if uploaded_file:
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.plot(x, y, color='black')
         for _, row in result_df.iterrows():
+            label = f"{row['annotations']}\n({row['type']})"
             ax.axvline(x=row['peak_cm-1'], color='red', linestyle='--', alpha=0.6)
-            ax.text(row['peak_cm-1'], row['intensity'] + 0.01, row['annotations'],
+            ax.text(row['peak_cm-1'], row['intensity'] + 0.01, label,
                     rotation=90, fontsize=7, color='blue', ha='center')
         ax.invert_xaxis()
         ax.set_xlabel('Wavenumber (cm⁻¹)')
         ax.set_ylabel('Intensity')
-        ax.set_title('IR Spectrum with Annotated Peaks')
+        ax.set_title('IR Spectrum with Annotated Peaks and Shape')
         ax.grid(True, linestyle='--', alpha=0.3)
         st.pyplot(fig)
 
