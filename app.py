@@ -6,15 +6,12 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
 st.set_page_config(page_title='IR Spectrum Annotator', layout='wide')
+st.title('🔬 IR Spectrum Annotator (Improved Version)')
+st.markdown('Upload your spectrum CSV file (with columns `x` and `y`) to analyze and annotate peaks with better accuracy.')
 
-st.title('🔬 IR Spectrum Annotator')
-st.markdown('Upload your spectrum CSV file (with columns `x` and `y`) to analyze and annotate peaks.')
-
-# 上传 CSV
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 uploaded_rules = st.file_uploader("Upload Custom IR Rules (optional)", type=["json"])
 
-# 加载规则库
 default_rules = {
     "O–H (alcohol stretch)": [3200, 3600],
     "O–H (carboxylic acid stretch)": [2500, 3000],
@@ -33,17 +30,18 @@ default_rules = {
 }
 
 def annotate_peaks(x, y, rules, height_ratio=0.05, distance=10):
-    peaks, _ = find_peaks(y, height=height_ratio * max(y), distance=distance)
+    peaks, props = find_peaks(y, height=height_ratio * max(y), distance=distance, prominence=0.01, width=2)
     peak_x = x[peaks]
     peak_y = y[peaks]
     annotations = []
     for px, py in zip(peak_x, peak_y):
-        match = [name for name, (low, high) in rules.items() if low <= px <= high]
-        annotations.append({
-            "peak_cm-1": px,
-            "intensity": py,
-            "annotations": "; ".join(match) if match else "Unknown"
-        })
+        matches = [name for name, (low, high) in rules.items() if low <= px <= high]
+        if matches:
+            annotations.append({
+                "peak_cm-1": px,
+                "intensity": py,
+                "annotations": "; ".join(matches)
+            })
     return pd.DataFrame(annotations)
 
 if uploaded_file:
@@ -71,7 +69,7 @@ if uploaded_file:
         ax.invert_xaxis()
         ax.set_xlabel('Wavenumber (cm⁻¹)')
         ax.set_ylabel('Intensity')
-        ax.set_title('IR Spectrum with Peak Annotations')
+        ax.set_title('IR Spectrum with Annotated Peaks')
         ax.grid(True, linestyle='--', alpha=0.3)
         st.pyplot(fig)
 
