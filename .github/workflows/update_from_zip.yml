@@ -1,4 +1,5 @@
-name: 🚀 Update from Modular ZIP
+
+name: 🚀 Update from Internal ZIP
 
 on:
   push:
@@ -13,9 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Replace project with new ZIP content
+      - name: Replace project with ZIP inside repo
         run: |
-          curl -L -H "Accept: application/zip" -o latest_ir_tool.zip https://huggingface.co/datasets/ir-spectrum/files/resolve/main/ir_tool_modular_final_updated.zip
+          curl -L -o latest_ir_tool.zip https://raw.githubusercontent.com/Voyager9999/Voyager9999-Online-IR-spectrum-analysis-tool/main/ir_tool_modular_final_updated.zip
           unzip -o latest_ir_tool.zip -d updated_content
           mkdir -p core data pages
           rm -rf core data pages Home.py requirements.txt || true
@@ -27,5 +28,5 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "🔄 Auto-update from HuggingFace ZIP"
+          git commit -m "🔄 Auto-update from internal repo ZIP"
           git push
