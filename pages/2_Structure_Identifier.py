@@ -14,7 +14,6 @@ st.title("🧠 Structure Identifier")
 rules = load_rules()
 memory = load_memory()
 
-# 上传 CSV 光谱
 uploaded_file = st.file_uploader("Upload IR CSV (x, y)", type="csv")
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -23,8 +22,7 @@ if uploaded_file:
         y = df['y'].values
         y_smooth = savgol_filter(y, 11, 3)
 
-        default_x = int(x[np.argmin(y_smooth)])
-        selected_peak = st.slider("🎯 Adjust Red Marker to Peak", int(x.max()), int(x.min()), default_x, step=1)
+        selected_peak = st.slider("🎯 Adjust Red Marker to Peak", 4100, 400, int(x[np.argmin(y_smooth)]), step=1)
 
         if st.button("➕ Confirm this peak"):
             matched = [name for name, (lo, hi) in rules.items() if lo <= selected_peak <= hi]
