@@ -1,2 +1,3 @@
 import streamlit as st
-st.write('Page 2 - Structure Identifier with interactive marker (placeholder)')
+st.title('🧠 Structure Identifier')
+st.write('Interactive peak picking page with draggable marker.')
