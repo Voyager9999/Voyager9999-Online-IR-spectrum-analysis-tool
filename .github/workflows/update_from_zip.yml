@@ -16,7 +16,7 @@ jobs:
 
       - name: Replace project with ZIP inside repo
         run: |
-          curl -L -o latest_ir_tool.zip https://raw.githubusercontent.com/Voyager9999/Voyager9999-Online-IR-spectrum-analysis-tool/main/ir_tool_modular_final_updated.zip
+          curl -L -o latest_ir_tool.zip https://raw.githubusercontent.com/Voyager9999/Voyager9999-Online-IR-spectrum-analysis-tool/main/ir_tool_auto_update.zip
           unzip -o latest_ir_tool.zip -d updated_content
           mkdir -p core data pages
           rm -rf core data pages Home.py requirements.txt || true
