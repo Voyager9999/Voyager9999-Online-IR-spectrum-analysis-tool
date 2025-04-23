@@ -16,7 +16,7 @@ jobs:
 
       - name: Download and extract ZIP from GitHub Release
         run: |
-          curl -L -o latest_ir_tool.zip https://github.com/Voyager9999/Voyager9999-Online-IR-spectrum-analysis-tool/releases/download/V1.0/ir_tool_modular_final_updated.1.zip
+          curl -L -o latest_ir_tool.zip https://github.com/Voyager9999/Voyager9999-Online-IR-spectrum-analysis-tool/releases/download/V1.0/ir_tool_modular_final_updated.zip
           unzip -o latest_ir_tool.zip -d updated_content
           mkdir -p core data pages
           rm -rf core data pages Home.py requirements.txt || true
