@@ -15,7 +15,7 @@ jobs:
 
       - name: Replace project with new ZIP content
         run: |
-          curl -L -o latest_ir_tool.zip https://chatexport.s3.amazonaws.com/ir_tool_modular_final_updated.zip
+          curl -L -o latest_ir_tool.zip https://huggingface.co/datasets/ir-spectrum/files/resolve/main/ir_tool_modular_final_updated.zip
           unzip -o latest_ir_tool.zip -d updated_content
           mkdir -p core data pages
           rm -rf core data pages Home.py requirements.txt || true
