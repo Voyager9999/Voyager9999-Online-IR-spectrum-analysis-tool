@@ -1,2 +1,5 @@
+
 import streamlit as st
-st.title('IR Tool')
+st.set_page_config(page_title="IR Spectrum Tool", layout="wide")
+st.title("🌟 IR Spectrum Assistant")
+st.markdown("Navigate: Spectrum → Structure → Literature")
