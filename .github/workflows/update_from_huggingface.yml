@@ -1,0 +1,32 @@
+
+name: 🔁 Auto Update from HuggingFace ZIP
+
+on:
+  push:
+    paths:
+      - 'trigger_update.txt'
+
+jobs:
+  update-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download and extract from HuggingFace
+        run: |
+          curl -L -o latest_ir_tool.zip https://huggingface.co/datasets/ir-spectrum/files/resolve/main/ir_tool_auto_update.zip
+          unzip -o latest_ir_tool.zip -d updated_content
+          mkdir -p core data pages
+          rm -rf core data pages Home.py requirements.txt || true
+          cp -r updated_content/* ./
+          rm -rf updated_content latest_ir_tool.zip
+
+      - name: Commit and Push updates
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "🔄 Update from HuggingFace ZIP"
+          git push
