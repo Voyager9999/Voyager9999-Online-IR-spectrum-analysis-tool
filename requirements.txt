@@ -1,7 +1,6 @@
 streamlit
+matplotlib
 pandas
 numpy
-matplotlib
 scipy
 PyMuPDF
-plotly
