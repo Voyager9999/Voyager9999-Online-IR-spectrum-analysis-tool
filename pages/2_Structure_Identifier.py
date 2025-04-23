@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import json
 import plotly.express as px
-import os
+from scipy.signal import find_peaks
 
 st.title("🔬 Structure Identifier")
 
@@ -12,15 +12,12 @@ with open("data/rules.json") as f:
 
 try:
     df = pd.read_csv("data/uploaded.csv")
-    st.success("Using spectrum uploaded in Page 1.")
-    x = df["x"]
-    y = df["y"]
+    x, y = df["x"], df["y"]
+    st.success("Using uploaded spectrum from Page 1.")
 except:
-    st.warning("Please upload a spectrum in Page 1 first.")
+    st.error("Please upload a spectrum in Page 1 first.")
     st.stop()
 
-# 自动寻找峰（简单处理）
-from scipy.signal import find_peaks
 peaks, _ = find_peaks(-y, distance=10)
 picked = st.slider("Select Peak (cm⁻¹)", 400, 4100, int(x[peaks[0]]))
 
@@ -41,10 +38,14 @@ if st.button("➕ Confirm Peak"):
         st.experimental_rerun()
 
 if memory:
+    st.subheader("🧠 Confirmed Peaks")
     dfm = pd.DataFrame(memory)
     st.dataframe(dfm)
-    peaks = [m["peak"] for m in memory]
-    fig = px.scatter(x=peaks, y=[1]*len(peaks), labels={"x": "Wavenumber", "y": "Intensity"})
+
+    peaks_plot = [m["peak"] for m in memory]
+    fig = px.line(x=x, y=y, labels={"x": "Wavenumber", "y": "Absorbance"})
+    fig.add_scatter(x=peaks_plot, y=[y[x.tolist().index(p)] if p in x.tolist() else 1 for p in peaks_plot],
+                    mode="markers+text", marker=dict(color="red"), text=[f"{int(p)}" for p in peaks_plot])
     st.plotly_chart(fig)
 
     idx = st.number_input("Delete index", 0, len(memory)-1)
