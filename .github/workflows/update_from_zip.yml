@@ -23,4 +23,9 @@ jobs:
           rm -rf updated_content latest_ir_tool.zip
 
       - name: Commit & Push
-        run:
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "🔄 Auto-update from HuggingFace ZIP"
+          git push
