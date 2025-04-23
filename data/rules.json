@@ -1,5 +1,6 @@
 
-[
-  {"wavenumber": [1720, 1740], "group": "C=O stretch (ester)", "note": "broad"},
-  {"wavenumber": [3300, 3500], "group": "O–H/N–H stretch", "note": "broad"}
-]
+{
+    "O–H stretch": [3200, 3600],
+    "C=O stretch": [1700, 1750],
+    "C–O stretch": [1000, 1300]
+}
